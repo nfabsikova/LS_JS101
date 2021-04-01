@@ -1,0 +1,23 @@
+{ "en" : {
+    "welcome" : "Welcome to the calculator!",
+    "firstNumber" : "What's the first number?",
+    "secondNumber" : "What's the second number?",
+    "invalidNumber" : "Hmm... that doesn't look like a valid number.",
+    "operation" : "What operation would you like to perform?\n1) Add 2) Subtract 3) Multiply 4) Divide",
+    "invalidOperation" : "Must choose 1, 2, 3, or 4",
+    "result" : "The result is ",
+    "repeat" : "Do you want to perform another operation? (y/n)"
+  },
+  "sk" : {
+    "welcome" : "Vitajte v kalkulačke!",
+    "firstNumber" : "Aké je prvé číslo?",
+    "secondNumber" : "Aké je druhé číslo?",
+    "invalidNumber" : "Hmm... to nevyzerá ako povolené číslo",
+    "operation" : "Akú operáciu si želáte vykonať?\n1) Súčet 2) Odčítanie 3) Násobenie 4) Delenie",
+    "invalidOperation" : "Musíte si vybrať 1, 2, 3, alebo 4",
+    "result" : "Výsledok je ",
+    "repeat" : "Želáte si vykonať ďalšiu operáciu? (y/n)"
+
+  }
+
+}
