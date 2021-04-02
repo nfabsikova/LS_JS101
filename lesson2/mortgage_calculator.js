@@ -33,7 +33,8 @@ function calculateMonthlyPayment(loanAmount, interestMonthly, durationMonths) {
   if (interestMonthly === 0) {
     return loanAmount / durationMonths;
   }
-  return loanAmount * (interestMonthly / (1 - Math.pow((1 + interestMonthly), (-durationMonths))));
+  return loanAmount *
+  (interestMonthly / (1 - Math.pow((1 + interestMonthly), (-durationMonths))));
 }
 
 function formatResult(number) {
@@ -88,8 +89,8 @@ while (true) {
   output(MESSAGES.totalInterest, totalInterest);
 
   //Ask if user wants to perform another calculation
-  prompt(MESSAGES.repeat);
-  let repeat = input("Press y for repeating");
+  prompt(MESSAGES.repeatPrompt);
+  let repeat = input(MESSAGES.repeatInput);
 
   if (repeat === "" || !MESSAGES.affirmation.includes(repeat.toLowerCase())) {
     break;

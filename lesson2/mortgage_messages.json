@@ -13,7 +13,8 @@
   "monthlyPayment": "Monthly payment",
   "totalPayment" : "Total payment",
   "totalInterest": "Total interest",
-  "repeat" : "Do you wish to perform another calculation? (y/n)",
+  "repeatPrompt" : "Do you wish to perform another calculation? (y/n)",
+  "repeatInput" : "Press y for repeating",
   "affirmation" : ["y", "yes", "yea"],
   "currency" : {
     "US" : "USD",
