@@ -1,0 +1,25 @@
+{ "en" : {
+  "welcome" : "Welcome to the Mortgage Loan Calculator!",
+  "loanAmountPrompt" : "Please enter the loan amount.",
+  "loanAmountInput" : "Amount in $",
+  "loanAmountInvalid" : "Entered loan amount is not valid. Please enter valid loan amount.",
+  "loanDurationPrompt" : "Please enter the loan duration.",
+  "loanDurationInput" : "Duration in years",
+  "loanDurationInvalid" : "Entered loan duration is not valid. Please enter valid loan duration.",
+  "aprPrompt" : "Please enter the Annual Percentage Rate (APR) in % (e.g. 5%)",
+  "aprInput" : "APR in %",
+  "aprInvalid" : "Entered APR is not valid. Please enter valid APR.",
+  "seeResults" : "Please see your results below.",
+  "monthlyPayment": "Monthly payment",
+  "totalPayment" : "Total payment",
+  "totalInterest": "Total interest",
+  "repeat" : "Do you wish to perform another calculation? (y/n)",
+  "affirmation" : ["y", "yes", "yea"],
+  "currency" : {
+    "US" : "USD",
+    "GB" : "GBP",
+    "AU" : "AUD"
+  }
+}
+
+}

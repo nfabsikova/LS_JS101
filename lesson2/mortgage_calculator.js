@@ -1,6 +1,9 @@
 //Constants
 const readline = require('readline-sync');
 const LOCALE = 'en-US';
+const LANGUAGE = LOCALE.slice(0, 2);
+const REGION = LOCALE.slice(3, 5);
+const MESSAGES = require('./mortgage_messages.json')[LANGUAGE];
 
 //Functions
 function prompt(message) {
@@ -19,55 +22,77 @@ function invalidNumber(number) {
   return number.trim() === '' || Number.isNaN(Number(number));
 }
 
+function invalidInput(number, allowZero = false) {
+  if (allowZero) {
+    return invalidNumber(number) || number < 0;
+  }
+  return invalidNumber(number) || number <= 0;
+}
+
 function calculateMonthlyPayment(loanAmount, interestMonthly, durationMonths) {
+  if (interestMonthly === 0) {
+    return loanAmount / durationMonths;
+  }
   return loanAmount * (interestMonthly / (1 - Math.pow((1 + interestMonthly), (-durationMonths))));
 }
 
 function formatResult(number) {
-  return number.toLocaleString(LOCALE, {style: 'currency', currency: 'USD' });
+  return number.toLocaleString(LOCALE, {style: 'currency', currency: MESSAGES.currency[REGION] });
 }
+
 
 //Welcome the user
-prompt("Welcome to the Mortgage Loan Calculator!");
+prompt(MESSAGES.welcome);
 
-//Ask the user for loan amount until valid
-prompt("Please enter the loan amount.");
-let loanAmount = input("Amount in $");
+while (true) {
+  //Ask the user for loan amount until valid
+  prompt(MESSAGES.loanAmountPrompt);
+  let loanAmount = input(MESSAGES.loanAmountInput);
 
-while (invalidNumber(loanAmount)) {
-  prompt("Entered loan amount is not valid. Please enter valid loan amount.");
-  loanAmount = input("Amount in $");
+  while (invalidInput(loanAmount)) {
+    prompt(MESSAGES.loanAmountInvalid);
+    loanAmount = input(MESSAGES.loanAmountInput);
+  }
+
+  //Ask the user for duration in years until valid
+  prompt(MESSAGES.loanDurationPrompt);
+  let durationYears = input(MESSAGES.loanDurationInput);
+
+  while (invalidInput(durationYears)) {
+    prompt(MESSAGES.loanDurationInvalid);
+    durationYears = input(MESSAGES.loanDurationInput);
+  }
+
+  //Ask the user for APR
+  prompt(MESSAGES.aprPrompt);
+  let interestAnnual = input(MESSAGES.aprInput);
+
+  while (invalidInput(interestAnnual, true)) {
+    prompt(MESSAGES.aprInvalid);
+    interestAnnual = input(MESSAGES.aprInput);
+  }
+
+  //Calculate formula input values
+  let durationMonths = durationYears * 12;
+  let interestMonthly = (interestAnnual / 100) / 12;
+
+  //Calculate results
+  let monthlyPayment = calculateMonthlyPayment(loanAmount, interestMonthly, durationMonths);
+  let totalPayment = monthlyPayment * durationMonths;
+  let totalInterest = totalPayment - loanAmount;
+
+  //Print results
+  prompt(MESSAGES.seeResults);
+  output(MESSAGES.monthlyPayment, monthlyPayment);
+  output(MESSAGES.totalPayment, totalPayment);
+  output(MESSAGES.totalInterest, totalInterest);
+
+  //Ask if user wants to perform another calculation
+  prompt(MESSAGES.repeat);
+  let repeat = input("Press y for repeating");
+
+  if (repeat === "" || !MESSAGES.affirmation.includes(repeat.toLowerCase())) {
+    break;
+  }
+
 }
-
-//Ask the user for duration in years until valid
-prompt("Please enter the loan duration.");
-let durationYears = input("Duration in years");
-
-while (invalidNumber(durationYears)) {
-  prompt("Entered loan duration is not valid. Please enter valid loan duration.")
-  durationYears = input("Duration in years");
-}
-
-//Ask the user for APR
-prompt("Please enter the Annual Percentage Rate (APR) in % (e.g. 5%)")
-let interestAnnual = input("APR in %");
-
-while (invalidNumber(interestAnnual)) {
-  prompt("Entered APR is not valid. Please enter valid APR.");
-  interestAnnual = input("APR in %");
-}
-
-//Calculate formula input values
-let durationMonths = durationYears * 12;
-let interestMonthly = (interestAnnual / 100) / 12;
-
-//Calculate results
-let monthlyPayment = calculateMonthlyPayment(loanAmount, interestMonthly, durationMonths);
-let totalPayment = monthlyPayment * durationMonths;
-let totalInterest = totalPayment - loanAmount;
-
-//Print results
-prompt("Please see your results below.");
-output("Monthly payment", monthlyPayment);
-output("Total payment", totalPayment);
-output("Total interest", totalInterest);
