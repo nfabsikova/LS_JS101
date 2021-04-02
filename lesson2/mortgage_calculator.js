@@ -43,9 +43,12 @@ function formatResult(number) {
 
 
 //Welcome the user
+console.clear();
+
 prompt(MESSAGES.welcome);
 
 while (true) {
+
   //Ask the user for loan amount until valid
   prompt(MESSAGES.loanAmountPrompt);
   let loanAmount = input(MESSAGES.loanAmountInput);
@@ -95,5 +98,5 @@ while (true) {
   if (repeat === "" || !MESSAGES.affirmation.includes(repeat.toLowerCase())) {
     break;
   }
-
+  console.clear();
 }
