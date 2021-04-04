@@ -22,11 +22,22 @@ function invalidNumber(number) {
   return number.trim() === '' || Number.isNaN(Number(number));
 }
 
-function invalidInput(number, allowZero = false) {
-  if (allowZero) {
-    return invalidNumber(number) || number < 0;
+function invalidInput(number, allowZero, requireInteger) {
+  if (invalidNumber(number)) return true;
+  else if (allowZero && number < 0) return true;
+  else if (requireInteger && !Number.isInteger(Number(number))) return true;
+  else return number <= 0;
+}
+
+function getInput(inputName, allowZero = false, requireInteger = false) {
+  prompt(MESSAGES[inputName + "Prompt"]);
+  let inputVariable = input(MESSAGES[inputName + "Input"]);
+
+  while (invalidInput(inputVariable, allowZero, requireInteger)) {
+    prompt(MESSAGES[inputName + "Invalid"]);
+    inputVariable = input(MESSAGES[inputName + "Input"]);
   }
-  return invalidNumber(number) || number <= 0;
+  return Number(inputVariable);
 }
 
 function calculateMonthlyPayment(loanAmount, interestMonthly, durationMonths) {
@@ -49,39 +60,17 @@ prompt(MESSAGES.welcome);
 
 while (true) {
 
-  //Ask the user for loan amount until valid
-  prompt(MESSAGES.loanAmountPrompt);
-  let loanAmount = input(MESSAGES.loanAmountInput);
-
-  while (invalidInput(loanAmount)) {
-    prompt(MESSAGES.loanAmountInvalid);
-    loanAmount = input(MESSAGES.loanAmountInput);
-  }
-
-  //Ask the user for duration in years until valid
-  prompt(MESSAGES.loanDurationPrompt);
-  let durationYears = input(MESSAGES.loanDurationInput);
-
-  while (invalidInput(durationYears)) {
-    prompt(MESSAGES.loanDurationInvalid);
-    durationYears = input(MESSAGES.loanDurationInput);
-  }
-
-  //Ask the user for APR
-  prompt(MESSAGES.aprPrompt);
-  let interestAnnual = input(MESSAGES.aprInput);
-
-  while (invalidInput(interestAnnual, true)) {
-    prompt(MESSAGES.aprInvalid);
-    interestAnnual = input(MESSAGES.aprInput);
-  }
+  let loanAmount = getInput("loanAmount");
+  let durationYears = getInput("loanDuration", false, true);
+  let interestAnnual = getInput("apr", true);
 
   //Calculate formula input values
   let durationMonths = durationYears * 12;
   let interestMonthly = (interestAnnual / 100) / 12;
 
   //Calculate results
-  let monthlyPayment = calculateMonthlyPayment(loanAmount, interestMonthly, durationMonths);
+  let monthlyPayment = calculateMonthlyPayment(loanAmount,
+    interestMonthly, durationMonths);
   let totalPayment = monthlyPayment * durationMonths;
   let totalInterest = totalPayment - loanAmount;
 
@@ -93,10 +82,15 @@ while (true) {
 
   //Ask if user wants to perform another calculation
   prompt(MESSAGES.repeatPrompt);
-  let repeat = input(MESSAGES.repeatInput);
+  let repeat = input(MESSAGES.repeatInput).toLowerCase();
 
-  if (repeat === "" || !MESSAGES.affirmation.includes(repeat.toLowerCase())) {
-    break;
+  while (!MESSAGES.repeatOptions.includes(repeat)) {
+    prompt(MESSAGES.repeatInvalid);
+    repeat = input(MESSAGES.repeatInput).toLowerCase();
   }
+
+  if (repeat === "n") break;
+
   console.clear();
+
 }
