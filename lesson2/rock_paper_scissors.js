@@ -41,6 +41,7 @@ function shorthandsAsString() {
   }
   return shorthandArray.join(", ");
 }
+
 function displayWelcome() {
   console.clear();
   prompt(`Welcome to ${Object.keys(CHOICES).join(', ')}!`);
