@@ -30,7 +30,5 @@ let areaMain = Number(roomLength) * Number(roomWidth);
 let multiplier = (measureMain === 'meters' ? SQMETERS_TO_SQFEET : 1 / SQMETERS_TO_SQFEET );
 let areaOther = areaMain * multiplier;
 
-
-
 console.log(
   `The area of the room is ${areaMain.toFixed(2)} square ${measureMain} (${areaOther.toFixed(2)} square ${measureOther}.)`);
