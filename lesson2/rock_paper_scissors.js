@@ -49,6 +49,11 @@ function displayWelcome() {
   prompt("Whoever wins five rounds becomes the grand winner.");
 }
 
+function isWinner() {
+  return (scores.player === REQUIRED_NUM_WINS) ||
+  (scores.computer === REQUIRED_NUM_WINS);
+}
+
 function promptContinue() {
   prompt("Press enter to continue.");
   readline.question();
@@ -61,10 +66,10 @@ function displayScores() {
 }
 
 function assignChoice(letter) {
-  for (let key in CHOICES) {
-    if (CHOICES[key].shorthand === letter) return key;
+  for (let fullChoice in CHOICES) {
+    if (CHOICES[fullChoice].shorthand === letter) return fullChoice;
   }
-  return 'invalid';
+  return null;
 }
 
 function getPlayerChoice() {
@@ -72,7 +77,7 @@ function getPlayerChoice() {
   let choiceShorthand = input().toLowerCase();
   let choice = assignChoice(choiceShorthand);
 
-  while (choice === 'invalid') {
+  while (!choice) {
     prompt(`That's not a valid choice. Please enter one of: ${shorthandsAsString()}`);
     choiceShorthand = input().toLowerCase();
     choice = assignChoice(choiceShorthand);
@@ -131,7 +136,7 @@ function promptNewGame() {
     prompt("That's not a valid input. Please enter 'y' or 'n'.");
     answer = input().toLowerCase();
   }
-  return answer;
+  return answer === 'y';
 }
 
 while (true) {
@@ -140,8 +145,7 @@ while (true) {
 
   displayWelcome();
 
-  while ((scores.player !== REQUIRED_NUM_WINS) &&
-        (scores.computer !== REQUIRED_NUM_WINS)) {
+  while (!isWinner()) {
 
     promptContinue();
     displayScores();
@@ -156,6 +160,5 @@ while (true) {
 
   displayGrandResult();
 
-  let newGame = promptNewGame();
-  if (newGame === 'n') break;
+  if (!promptNewGame()) break;
 }
