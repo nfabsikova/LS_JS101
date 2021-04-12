@@ -162,3 +162,8 @@ while (true) {
 
   if (!promptNewGame()) break;
 }
+
+let a = [undefined, undefined, undefined];
+let aKeys = Object.keys(a);
+console.log(aKeys.length);
+console.log(a.length);
