@@ -41,6 +41,10 @@ function welcome() {
   console.log("The player who succeeds in placing three markers in a \nhorizontal, vertical or diagonal row wins the round.");
   console.log('');
 
+  console.log("The squares are numbered as follows.");
+  displayBoardNumbering();
+  console.log('');
+
   console.log(`The player who wins ${WINNING_SCORE} rounds wins the overall match.`);
   console.log('');
 }
@@ -71,6 +75,14 @@ function displayBoard(board) {
   console.log(`  ${board['7']}  |  ${board['8']}  |  ${board['9']}`);
   console.log('     |     |');
   console.log('');
+}
+
+function displayBoardNumbering() {
+  let board = initializeBoard();
+  for (let key in board) {
+    board[key] = key;
+  }
+  displayBoard(board);
 }
 
 function displayGameInterface(score, board) {
