@@ -1,7 +1,5 @@
 const readline = require('readline-sync');
 
-const FIRST_MOVER_MODE = 'choose';
-
 const INITIAL_MARKER = ' ';
 const HUMAN_MARKER = 'X';
 const COMPUTER_MARKER = 'O';
@@ -13,7 +11,9 @@ const WINNING_LINES = [
 ];
 
 const MIDDLE_SQUARE = '5';
-const WINNING_SCORE = 5;
+const WINNING_SCORE = 1;
+
+let firstMoverMode = 'choose';
 
 function prompt(message) {
   console.log(`=> ${message}`);
@@ -118,10 +118,10 @@ function initializeBoard() {
 }
 
 function returnFirstMover() {
-  if (FIRST_MOVER_MODE === 'choose') {
+  if (firstMoverMode === 'choose') {
     return promptFirstMover() === 'p' ? 'player' : 'computer';
   } else {
-    return FIRST_MOVER_MODE;
+    return firstMoverMode;
   }
 }
 
@@ -209,7 +209,6 @@ function isOpportunity(board, mode) {
 
 function findAtRiskSquare(board, mode) {
   let lineAtRisk = findAtRiskLines(board, mode)[0];
-  console.log(lineAtRisk);
   return lineAtRisk.filter(square => {
     return emptySquares(board).includes(String(square));
   })[0];
@@ -287,7 +286,7 @@ function displayMatchWinner(score) {
 function promptNewMatch() {
   while (true) {
     prompt('Do you want to start another game? (y or n)');
-    let answer = readline.question().toLowerCase()[0];
+    let answer = readline.question().toLowerCase();
     if (['y', 'n'].includes(answer)) return answer !== 'y';
     prompt("Sorry, that's not a valid choice.");
   }

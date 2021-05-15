@@ -1,12 +1,14 @@
 const readline = require('readline-sync');
 
-const SUITS = ['heart', 'spade', 'diamond', 'club'];
+const SUITS = ['♥', '♠', '♦', '♣'];
 const VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
 
 const TARGET_VALUE = 21;
 const DEALER_HIT_MAX = 17;
 
-function joinOr(arr, delimiter = ', ', joinWord = 'or') {
+const WINNING_SCORE = 5;
+
+function joinAnd(arr, delimiter = ', ', joinWord = 'and') {
   if (arr.length === 0) return '';
   if (arr.length === 1) return `${arr[0]}`;
   if (arr.length === 2) return `${arr[0]} ${joinWord} ${arr[1]}`;
@@ -23,9 +25,14 @@ function highlight(message) {
   console.log(`*** ${message} ***`);
 }
 
+function breakLine() {
+  console.log('_______________________________________________________');
+  console.log('');
+}
+
 function welcome() {
   console.clear();
-  highlight("Welcome to Twenty-One!");
+  highlight("Welcome to the game of Twenty-One!");
   console.log('');
 
   console.log("The goal of the game is to get closer to a total sum of 21 points \nworth of cards than the dealer.");
@@ -39,8 +46,15 @@ function welcome() {
   console.log("But beware, if you go over 21 points, you lose.");
   console.log('');
 
-  console.log("Press any key to start the game.");
-  readline.question();
+  console.log(`Whoever wins ${WINNING_SCORE} rounds wins the whole match.`);
+  console.log('');
+
+  readline.question("Press any key to start the game.");
+  console.clear();
+}
+
+function initializeScores() {
+  return {player: 0, dealer: 0};
 }
 
 function initializeDeck() {
@@ -77,8 +91,12 @@ function handValues(hand) {
   return hand.map(card => card.value);
 }
 
-function returnAceValue(total) {
-  return (total + 11 <= TARGET_VALUE) ? 11 : 1;
+function handCards(hand) {
+  return hand.map(card => card.suit + card.value);
+}
+
+function returnAceValue(totalValue) {
+  return (totalValue + 11 <= TARGET_VALUE) ? 11 : 1;
 }
 
 function total(hand) {
@@ -102,38 +120,54 @@ function total(hand) {
   return sum;
 }
 
-function displayCards(hands) {
-  console.clear();
-  console.log(`Dealer has: ${handValues(hands.dealer)[0]} and unknown card.`);
-  console.log(`You have: ${joinOr(handValues(hands.player), ", ", "and")}, with a total of ${total(hands.player)}.`);
+function formatCards(hand, totalValue) {
+  return `${joinAnd(handCards(hand))}, with a total of ${totalValue}`;
 }
 
-function busted(hand) {
-  return total(hand) > 21;
+function hideCards(hand) {
+  let plural = (hand.length > 2 ? 's' : '');
+  return `${handCards(hand)[0]} and ${hand.length - 1} unknown card${plural}.`;
 }
 
-function revealCards(hands) {
-  console.clear();
-  console.log(`The dealer has: ${joinOr(handValues(hands.dealer), ", ", "and")}, with a total of ${total(hands.dealer)}.`);
-  console.log(`You have: ${joinOr(handValues(hands.player), ", ", "and")}, with a total of ${total(hands.player)}.`);
+function displayCards(hands, totals) {
+  console.log(`Dealer has: ${hideCards(hands.dealer)}`);
+  console.log(`You have: ${formatCards(hands.player, totals.player)}.`);
+}
+
+function displayScore(scores) {
+  console.log('-------------------------------');
+  console.log(`| SCORE: Player: ${scores.player}, Dealer: ${scores.dealer} |`);
+  console.log('-------------------------------');
   console.log('');
 }
 
-function determineWinner(hands) {
-  let playerTotal = total(hands.player);
-  let dealerTotal = total(hands.dealer);
+function busted(totalValue) {
+  return totalValue > 21;
+}
 
-  if (playerTotal > dealerTotal) {
+function revealCards(hands, totals) {
+  console.log(`The dealer had: ${formatCards(hands.dealer, totals.dealer)}.`);
+  console.log(`You had: ${formatCards(hands.player, totals.player)}.`);
+  console.log('');
+}
+
+function determineWinner(totals) {
+
+  if (totals.player > TARGET_VALUE) {
+    return 'dealer';
+  } else if (totals.dealer > TARGET_VALUE) {
+    return 'player';
+  } else if (totals.player > totals.dealer) {
     return "player";
-  } else if (playerTotal < dealerTotal) {
+  } else if (totals.player < totals.dealer) {
     return "dealer";
   } else {
     return "tie";
   }
 }
 
-function displayWinner(hands) {
-  let winner = determineWinner(hands);
+function displayWinner(totals) {
+  let winner = determineWinner(totals);
 
   if (winner === 'player') {
     highlight("You won!");
@@ -144,14 +178,21 @@ function displayWinner(hands) {
   }
 }
 
-function displayBusted(hands, person) {
-  let bustedPlayer = (person === 'player' ? 'You' : 'The dealer');
-  let winner = (person === 'player' ? 'The dealer' : 'You');
+function incrementScore(scores, totals) {
+  let winner = determineWinner(totals);
 
+  if (winner !== 'tie') {
+    scores[winner] += 1;
+  }
+}
+
+function displayBusted(totals) {
+  let winner = determineWinner(totals);
+  let busted = (winner === 'player' ? "The dealer" : "You");
+
+  breakLine();
+  console.log(`${busted} busted!`);
   console.log('');
-  console.log(`${bustedPlayer} busted, with a total of ${total(hands[person])}!`);
-  console.log('');
-  highlight(`${winner} won!`);
 }
 
 function displayStay(person) {
@@ -161,7 +202,7 @@ function displayStay(person) {
   console.log(`${stayPlayer} chose to stay.`);
 }
 
-function playerTurn(hands, deck) {
+function playerTurn(hands, deck, scores, totals) {
   while (true) {
     let answer;
 
@@ -175,26 +216,59 @@ function playerTurn(hands, deck) {
 
 
     if (answer === 'h') {
+      console.clear();
       dealCard(hands.player, deck);
-      displayCards(hands);
+
+      totals.player = total(hands.player);
+
+      displayScore(scores);
+      displayCards(hands, totals);
     }
 
-    if (answer === 's' || busted(hands.player)) break;
+    if (answer === 's' || busted(totals.player)) break;
   }
 }
 
-function dealerTurn(hands, deck) {
-  while (total(hands.dealer) < DEALER_HIT_MAX) {
-    console.log('');
+function dealerTurn(hands, deck, totals) {
+  while (totals.dealer < DEALER_HIT_MAX) {
+    breakLine();
     console.log("The dealer chose to hit.");
+    console.log('');
+
     dealCard(hands.dealer, deck);
+    totals.dealer = total(hands.dealer);
+
+    console.log(`The dealer has: ${hideCards(hands.dealer)}`);
   }
 }
 
 function promptReveal() {
-  console.log('');
+  breakLine();
   console.log("Press any key to reveal the results.");
   readline.question();
+  console.clear();
+}
+
+function isMatchWinner(scores) {
+  return scores.player === WINNING_SCORE ||
+    scores.dealer === WINNING_SCORE;
+}
+
+function promptNewRound() {
+  breakLine();
+  console.log("Press any key to start the next round.");
+  readline.question();
+  console.clear();
+}
+
+function returnMatchWinner(scores) {
+  return Object.keys(scores)
+    .filter(key => scores[key] === WINNING_SCORE);
+}
+
+function displayMatchWinner(scores) {
+  breakLine();
+  highlight(`The ${returnMatchWinner(scores)} is the winner of the whole match!`);
 }
 
 function playAgain() {
@@ -211,42 +285,58 @@ function playAgain() {
   return answer === 'y';
 }
 
-
 while (true) {
   welcome();
 
-  let deck = initializeDeck();
-  let hands = initializeHands(deck);
-
-  displayCards(hands);
+  let scores = initializeScores();
 
   while (true) {
-    playerTurn(hands, deck);
+    let deck = initializeDeck();
+    let hands = initializeHands(deck);
 
-    if (busted(hands.player)) {
-      displayBusted(hands, 'player');
+    let totals = {player: total(hands.player), dealer: total(hands.dealer)};
+
+    displayScore(scores);
+    displayCards(hands, totals);
+
+    while (true) {
+      playerTurn(hands, deck, scores, totals);
+
+      if (busted(totals.player)) {
+        displayBusted(totals);
+        break;
+      } else {
+        displayStay('player');
+      }
+
+      dealerTurn(hands, deck, totals);
+
+      if (busted(totals.dealer)) {
+        displayBusted(totals);
+        break;
+      } else {
+        displayStay('dealer');
+      }
+
+      promptReveal();
       break;
-    } else {
-      displayStay('player');
     }
 
-    dealerTurn(hands, deck);
+    revealCards(hands, totals);
+    displayWinner(totals);
 
-    if (busted(hands.dealer)) {
-      displayBusted(hands, 'dealer');
-      break;
-    } else {
-      displayStay('dealer');
-    }
+    incrementScore(scores, totals);
 
-    promptReveal();
+    if (isMatchWinner(scores)) break;
 
-    revealCards(hands);
-    displayWinner(hands);
-
-    break;
+    promptNewRound();
   }
 
-  if (!playAgain()) break;
+  displayMatchWinner(scores);
+
+  if (!playAgain()) {
+    console.log("\nThank you for playing the game of Twenty-One!\n");
+    break;
+  }
 }
 
